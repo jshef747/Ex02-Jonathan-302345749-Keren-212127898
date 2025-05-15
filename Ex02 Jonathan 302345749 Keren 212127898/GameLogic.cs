@@ -8,6 +8,8 @@ public class GameLogic
     private readonly GuessHistory r_MGuessHistory;
     public int NumberOfGuesses { get; set; }
 
+    private int NumberOfv { get; set; }
+
     public enum eGameStateIndicator
     {
         Won,
@@ -76,12 +78,11 @@ public class GameLogic
         return willPlayAgain;
     }
 
-    public eGameStateIndicator GenerateGuessFeedback(string i_Guess, int i_CurrentGuessNumber)
+    public void GenerateGuessFeedback(string i_Guess)
     {
-        int numberOfV = 0;
+        NumberOfv = 0;
         int numberOfX = 0;
         string guessFeedback = "";
-        eGameStateIndicator gameStateIndicator;
 
         foreach (char c in i_Guess)
         {
@@ -90,7 +91,7 @@ public class GameLogic
                 if (r_RandomGameWord.RandomWord.Contains(c)
                    && r_RandomGameWord.RandomWord.IndexOf(c) == i_Guess.IndexOf(c))
                 {
-                    numberOfV++;
+                    NumberOfv++;
                 }
                 else if (r_RandomGameWord.RandomWord.Contains(c))
                 {
@@ -99,7 +100,7 @@ public class GameLogic
             }
         }
 
-        for (int i = 0; i < numberOfV; i++)
+        for (int i = 0; i < NumberOfv; i++)
         {
             guessFeedback += k_HitAndSameIndex;
         }
@@ -109,7 +110,15 @@ public class GameLogic
             guessFeedback += k_HitAndWrongIndex;
         }
 
-        if (numberOfV == GameUtils.k_NumberOfLettersPerGuess)
+        r_MGuessHistory.AddGuess(i_Guess);
+        r_MGuessHistory.AddFeedback(guessFeedback);
+    }
+
+    public eGameStateIndicator GetGameStateIndicator(int i_CurrentGuessNumber)
+    {
+        eGameStateIndicator gameStateIndicator;
+
+        if (NumberOfv == GameUtils.k_NumberOfLettersPerGuess)
         {
             gameStateIndicator = eGameStateIndicator.Won;
         }
@@ -121,9 +130,6 @@ public class GameLogic
         {
             gameStateIndicator = eGameStateIndicator.Lost;
         }
-
-        r_MGuessHistory.AddGuess(i_Guess);
-        r_MGuessHistory.AddFeedback(guessFeedback);
 
         return gameStateIndicator;
     }

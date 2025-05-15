@@ -29,8 +29,8 @@ public static class UserInterface
                     break;
                 }
 
-                GameLogic.eGameStateIndicator gameStateIndicator =
-                    s_GameLogic.GenerateGuessFeedback(guessFromUser, currentGuessNumber);
+                s_GameLogic.GenerateGuessFeedback(guessFromUser);
+                GameLogic.eGameStateIndicator gameStateIndicator = s_GameLogic.GetGameStateIndicator(currentGuessNumber);
 
                 printTable(currentGuessNumber);
 
@@ -50,8 +50,7 @@ public static class UserInterface
             }
         }
 
-        //TODO change to his clear!!
-        Console.Clear();
+        ConsoleUtils.Screen.Clear();
         Console.WriteLine("Goodbye!");
     }
 
@@ -111,8 +110,7 @@ public static class UserInterface
 
     private static void getTableSizeAndPrint()
     {
-        //TODO CHANGE TO HIS MAJESTIES!
-        Console.Clear();
+        ConsoleUtils.Screen.Clear();
         Console.WriteLine(GameUtils.k_NumberOfGuessesInstructions);
         string numberOfGuesses = readNonNullStringAndHandleQuit();
 
@@ -145,8 +143,7 @@ public static class UserInterface
         List<string> feedbacksHistory = s_GameLogic.GetFeedbackHistory();
         int currentGuessNumberToPrintIndex = 0;
 
-        Console.Clear();
-        ////////////TODO//ConsoleUtils.Screen.Clear();
+        ConsoleUtils.Screen.Clear();
         Console.WriteLine("Current board status:");
         Console.WriteLine();
 
