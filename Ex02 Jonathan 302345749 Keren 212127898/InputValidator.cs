@@ -1,4 +1,4 @@
-﻿namespace Ex02;
+﻿namespace Ex02_Jonathan_302345749_Keren_212127898;
 
 public static class InputValidator
 {
@@ -97,7 +97,7 @@ public static class InputValidator
             BadInputMessage = $"Input must be a single character! ({GameUtils.k_Yes}/{GameUtils.k_No})";
             isValidAnswer = false;
         }
-        else if (i_YesOrNoInput[0].ToString() != GameUtils.k_Yes && i_YesOrNoInput[0].ToString() != GameUtils.k_No)
+        else if (i_YesOrNoInput[0].ToString().ToUpper() != GameUtils.k_Yes && i_YesOrNoInput[0].ToString().ToUpper() != GameUtils.k_No)
         {
             BadInputMessage = $"Input must be a valid character! ({GameUtils.k_Yes}/{GameUtils.k_No})";
             isValidAnswer = false;

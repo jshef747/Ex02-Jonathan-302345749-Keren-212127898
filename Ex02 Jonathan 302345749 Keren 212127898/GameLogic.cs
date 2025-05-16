@@ -1,4 +1,4 @@
-﻿namespace Ex02;
+﻿namespace Ex02_Jonathan_302345749_Keren_212127898;
 
 public class GameLogic
 {
@@ -7,7 +7,6 @@ public class GameLogic
     private readonly RandomGameWord r_RandomGameWord;
     private readonly GuessHistory r_MGuessHistory;
     public int NumberOfGuesses { get; set; }
-
     private int NumberOfv { get; set; }
 
     public enum eGameStateIndicator
@@ -80,25 +79,8 @@ public class GameLogic
 
     public void GenerateGuessFeedback(string i_Guess)
     {
-        NumberOfv = 0;
-        int numberOfX = 0;
         string guessFeedback = "";
-
-        foreach (char c in i_Guess)
-        {
-            if (r_RandomGameWord.RandomWord != null)
-            {
-                if (r_RandomGameWord.RandomWord.Contains(c)
-                   && r_RandomGameWord.RandomWord.IndexOf(c) == i_Guess.IndexOf(c))
-                {
-                    NumberOfv++;
-                }
-                else if (r_RandomGameWord.RandomWord.Contains(c))
-                {
-                    numberOfX++;
-                }
-            }
-        }
+        int numberOfX = countHitsAndMisplaced(i_Guess);
 
         for (int i = 0; i < NumberOfv; i++)
         {
@@ -114,6 +96,30 @@ public class GameLogic
         r_MGuessHistory.AddFeedback(guessFeedback);
     }
 
+    private int countHitsAndMisplaced(string i_Guess)
+    {
+        NumberOfv = 0;
+        int numberOfX = 0;
+        
+        foreach (char letter in i_Guess)
+        {
+            if (r_RandomGameWord.RandomWord != null)
+            {
+                if (r_RandomGameWord.RandomWord.Contains(letter)
+                    && r_RandomGameWord.RandomWord.IndexOf(letter) == i_Guess.IndexOf(letter))
+                {
+                    NumberOfv++;
+                }
+                else if (r_RandomGameWord.RandomWord.Contains(letter))
+                {
+                    numberOfX++;
+                }
+            }
+        }
+        
+        return numberOfX;
+    }
+    
     public eGameStateIndicator GetGameStateIndicator(int i_CurrentGuessNumber)
     {
         eGameStateIndicator gameStateIndicator;

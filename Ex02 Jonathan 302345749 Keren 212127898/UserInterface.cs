@@ -1,39 +1,43 @@
-﻿namespace Ex02;
+﻿namespace Ex02_Jonathan_302345749_Keren_212127898 ;
 
-public static class UserInterface
+public class UserInterface
 {
     private const int k_LengthOfFeedbackCell = 7;
+    private const int k_HeadlineIndex = 0;
+    private const int k_HashtagIndex = 1;
     private const string k_Row = "|         |       |";
     private const string k_Separator = "|=========|=======|";
     private static GameLogic? s_GameLogic;
-    private static bool s_QuitGame;
-    public static void StartGame()
+    private static bool s_PlayerHitQuit;
+    
+    public void StartGame()
     {
         Console.WriteLine("Welcome to the game!");
 
         bool continuePlaying = true;
 
-        while (continuePlaying && !s_QuitGame)
+        while (continuePlaying && !s_PlayerHitQuit)
         {
+            string guessFromUser = "";
+            GameLogic.eGameStateIndicator gameStateIndicator;
+            
             getTableSizeAndPrint();
-            if (s_QuitGame)
+            if (s_PlayerHitQuit)
             {
                 break;
             }
 
             for (int currentGuessNumber = 1; currentGuessNumber <= s_GameLogic!.NumberOfGuesses; currentGuessNumber++)
             {
-                string guessFromUser = promptAndProcessGuess();
-                if (s_QuitGame)
+                guessFromUser = promptAndProcessGuess();
+                if (s_PlayerHitQuit)
                 {
                     break;
                 }
 
                 s_GameLogic.GenerateGuessFeedback(guessFromUser);
-                GameLogic.eGameStateIndicator gameStateIndicator = s_GameLogic.GetGameStateIndicator(currentGuessNumber);
-
+                gameStateIndicator = s_GameLogic.GetGameStateIndicator(currentGuessNumber);
                 printTable(currentGuessNumber);
-
                 if (gameStateIndicator == GameLogic.eGameStateIndicator.Won)
                 {
                     Console.WriteLine($"You guessed after {currentGuessNumber} steps!");
@@ -50,77 +54,78 @@ public static class UserInterface
             }
         }
 
-        ConsoleUtils.Screen.Clear();
+        //TODO
+        Console.Clear();
+        //Ex02.ConsoleUtils.Screen.Clear();
         Console.WriteLine("Goodbye!");
     }
 
-    private static string readNonNullStringAndHandleQuit()
+    private string readStringFromUserAndHandleQuit()
     {
-        string? inputFromUser = Console.ReadLine();
+        string numberOfGuesses = "";
+        ConsoleKeyInfo key = readCharAndHandleQuit();
 
-        while (inputFromUser is null)
+        while (key.Key != ConsoleKey.Enter && !s_PlayerHitQuit)
         {
-            Console.WriteLine("Input cannot be null.");
-            inputFromUser = Console.ReadLine();
+            numberOfGuesses += key.KeyChar;
+            key = readCharAndHandleQuit();
         }
-
-        if (inputFromUser.ToUpper() == GameUtils.k_Quit.ToString())
-        {
-            s_QuitGame = true;
-        }
-
-        return inputFromUser;
+        
+        Console.WriteLine();
+        
+        return numberOfGuesses;
     }
-
-    private static ConsoleKeyInfo readCharAndHandleQuit()
+    
+    private ConsoleKeyInfo readCharAndHandleQuit()
     {
         ConsoleKeyInfo keyInputFromUser = Console.ReadKey(true);
+        
         while (keyInputFromUser.Key == ConsoleKey.Backspace)
         {
             keyInputFromUser = Console.ReadKey(true);
         }
 
         Console.Write(keyInputFromUser.KeyChar); // show it on screen as they type
-
         if (Char.ToUpper(keyInputFromUser.KeyChar) == GameUtils.k_Quit)
         {
-            s_QuitGame = true;
+            s_PlayerHitQuit = true;
         }
 
         return keyInputFromUser;
     }
 
-    private static bool askToPlayAgain()
+    private bool askToPlayAgain()
     {
         Console.WriteLine($"Would you like to start a new game? ({GameUtils.k_Yes}/{GameUtils.k_No})");
         ConsoleKeyInfo playAgainAnswer = readCharAndHandleQuit();
-        bool returnValue;
-
-        while (!InputValidator.YesOrNo(playAgainAnswer.KeyChar.ToString()) && !s_QuitGame)
+        
+        while (!InputValidator.YesOrNo(playAgainAnswer.KeyChar.ToString()) && !s_PlayerHitQuit)
         {
+            Console.WriteLine();
+            Console.WriteLine(InputValidator.BadInputMessage);
             playAgainAnswer = readCharAndHandleQuit();
         }
 
-        returnValue = s_QuitGame
+        return s_PlayerHitQuit
                           ? s_GameLogic!.PlayAgainOrNot(GameUtils.k_No)
-                          : s_GameLogic!.PlayAgainOrNot(playAgainAnswer.KeyChar.ToString());
-
-        return returnValue;
+                          : s_GameLogic!.PlayAgainOrNot(playAgainAnswer.KeyChar.ToString().ToUpper());
     }
 
-    private static void getTableSizeAndPrint()
+    private void getTableSizeAndPrint()
     {
-        ConsoleUtils.Screen.Clear();
+        //TODO
+        Console.Clear();
+        //Ex02.ConsoleUtils.Screen.Clear();
         Console.WriteLine(GameUtils.k_NumberOfGuessesInstructions);
-        string numberOfGuesses = readNonNullStringAndHandleQuit();
+        string numberOfGuesses = readStringFromUserAndHandleQuit();
 
-        while (!InputValidator.IsValidGuessNumber(numberOfGuesses) && !s_QuitGame)
+        while (!InputValidator.IsValidGuessNumber(numberOfGuesses) && !s_PlayerHitQuit)
         {
             Console.WriteLine(InputValidator.BadInputMessage);
-            numberOfGuesses = readNonNullStringAndHandleQuit();
+            numberOfGuesses = readStringFromUserAndHandleQuit();
         }
 
-        if (s_QuitGame)
+        if (s_PlayerHitQuit)
         {
             return;
         }
@@ -137,116 +142,105 @@ public static class UserInterface
         printTable();
     }
 
-    private static void printTable(int i_GuessNumber = 0)
+    private void printTable(int i_GuessNumber = 0)
     {
         List<string> guessesHistory = s_GameLogic!.GetGuessFromHistory();
         List<string> feedbacksHistory = s_GameLogic.GetFeedbackHistory();
         int currentGuessNumberToPrintIndex = 0;
 
-        ConsoleUtils.Screen.Clear();
+        //TODO
+        Console.Clear();
+        //Ex02.ConsoleUtils.Screen.Clear();
         Console.WriteLine("Current board status:");
         Console.WriteLine();
-
         for (int rowNumber = 0; rowNumber <= s_GameLogic.NumberOfGuesses; rowNumber++)
         {
-            if (rowNumber == 0)  // print headline
+            if (rowNumber == k_HeadlineIndex)
             {
                 Console.WriteLine("|Pins:    |Result:|");
             }
-            else if (rowNumber == 1 && i_GuessNumber == 0)
+            else if (rowNumber == k_HashtagIndex && i_GuessNumber == 0)
             {
                 Console.WriteLine("| # # # # |       |");
             }
-            else if (rowNumber <= i_GuessNumber)  // print guess and feedback
+            else if (rowNumber <= i_GuessNumber) 
             {
                 string guess = guessesHistory[currentGuessNumberToPrintIndex];
                 string feedback = feedbacksHistory[currentGuessNumberToPrintIndex];
-                string formattedGuess = formatStrToPrint(0, guess);
-                string formattedFeedback = formatStrToPrint(1, feedback);
 
-                Console.WriteLine($"|{formattedGuess}|{formattedFeedback}|");
-
+                Console.WriteLine($"|{formatGuessToPrint(guess)}|{formatFeedbackToPrint(feedback)}|");
                 currentGuessNumberToPrintIndex++;
             }
-            else // print empty line
+            else
             {
                 Console.WriteLine(k_Row);
             }
 
             Console.WriteLine(k_Separator);
         }
-
+        
         Console.WriteLine();
     }
 
-    private static string formatStrToPrint(int i_GuessOrFeedbackFlag, string i_StringToPrint)
+    private string formatGuessToPrint(string i_Guess)
     {
-        string strToPrint = "";
-
-        if (i_GuessOrFeedbackFlag == 0)
-        {
-            strToPrint = string.Format(
-                " {0} {1} {2} {3} ",
-                i_StringToPrint[0],
-                i_StringToPrint[1],
-                i_StringToPrint[2],
-                i_StringToPrint[3]);
-        }
-        else
-        {
-            int lengthOfFeedback = i_StringToPrint.Length;
-
-            if (lengthOfFeedback > 0)
-            {
-                string newStringToPrint = "";
-
-                for (int i = 0; i < lengthOfFeedback; i++)
-                {
-                    newStringToPrint += i_StringToPrint[i];
-                    if (i != GameUtils.k_NumberOfLettersPerGuess - 1)
-                    {
-                        newStringToPrint += " ";
-                    }
-                }
-
-                int numberOfSpacesToAdd = (k_LengthOfFeedbackCell - (lengthOfFeedback * 2));
-                numberOfSpacesToAdd = numberOfSpacesToAdd < 0 ? 0 : numberOfSpacesToAdd;
-                newStringToPrint += new string(' ', numberOfSpacesToAdd);
-
-                strToPrint = newStringToPrint;
-            }
-        }
-
-        return strToPrint;
+        return string.Format(
+            " {0} {1} {2} {3} ",
+            i_Guess[0],
+            i_Guess[1],
+            i_Guess[2],
+            i_Guess[3]);
     }
 
-    private static string promptAndProcessGuess()
+    private string formatFeedbackToPrint(string i_Feedback)
+    {
+        string stringToPrint = "";
+        int lengthOfFeedback = i_Feedback.Length;
+
+        if (lengthOfFeedback > 0)
+        {
+            for (int i = 0; i < lengthOfFeedback; i++)
+            {
+                stringToPrint += i_Feedback[i];
+                if (i != GameUtils.k_NumberOfLettersPerGuess - 1)
+                {
+                    stringToPrint += " ";
+                }
+            }
+
+            int numberOfSpacesToAdd = (k_LengthOfFeedbackCell - (lengthOfFeedback * 2));
+            numberOfSpacesToAdd = numberOfSpacesToAdd < 0 ? 0 : numberOfSpacesToAdd;
+            stringToPrint += new string(' ', numberOfSpacesToAdd);
+        }
+        
+        return stringToPrint;
+    }
+    
+    private string promptAndProcessGuess()
     {
         int oldLeft = Console.CursorLeft;
         int oldTop = Console.CursorTop;
 
         Console.WriteLine(GameUtils.k_InputInstructions);
-
         string guessFromUser = getGuessInput();
 
-        while (!InputValidator.IsValidGuessInput(guessFromUser) && !s_QuitGame)
+        while (!InputValidator.IsValidGuessInput(guessFromUser) && !s_PlayerHitQuit)
         {
             clearGuessFromScreen(oldLeft, oldTop);
             Console.WriteLine(InputValidator.BadInputMessage);
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("{0} {1} {2} {3}", guessFromUser[0], guessFromUser[1], guessFromUser[2], guessFromUser[3]);
             Console.ResetColor();
-            int newTop = Console.CursorTop;
-            Console.SetCursorPosition(0, newTop);
+            Console.SetCursorPosition(0, Console.CursorTop);
             guessFromUser = getGuessInput();
         }
 
         clearGuessFromScreen(oldLeft, oldTop);
-
+        
         return guessFromUser;
     }
 
-    private static void clearGuessFromScreen(int i_OldLeft, int i_OldTop)
+    private void clearGuessFromScreen(int i_OldLeft, int i_OldTop)
     {
         Console.SetCursorPosition(i_OldLeft, i_OldTop);
         Console.WriteLine(new string(' ', Console.WindowWidth));
@@ -255,7 +249,7 @@ public static class UserInterface
         Console.SetCursorPosition(i_OldLeft, i_OldTop);
     }
 
-    private static string getGuessInput()
+    private string getGuessInput()
     {
         string guessFromUser = "";
 
@@ -263,12 +257,11 @@ public static class UserInterface
         {
             ConsoleKeyInfo key = readCharAndHandleQuit();
 
-            if (s_QuitGame)
+            if (s_PlayerHitQuit)
             {
                 break;
             }
-
-            // if hit enter, fill guess with spaces
+            
             if (key.Key == ConsoleKey.Enter)
             {
                 while (i < GameUtils.k_NumberOfLettersPerGuess)
